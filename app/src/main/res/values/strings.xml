@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PruebaDevartis</string>
+    <string name="loading">Cargando...</string>
 </resources>
