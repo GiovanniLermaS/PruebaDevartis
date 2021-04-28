@@ -3,27 +3,30 @@ package com.example.pruebadevartis.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.pruebadevartis.db.model.Register
+import com.example.pruebadevartis.db.model.LoginRegister
+import com.example.pruebadevartis.db.model.ResponseLoginRegister
 import com.example.pruebadevartis.repository.MainActivityRepository
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.json.JSONObject
 import retrofit2.Response
 import javax.inject.Inject
 
 class MainActivityViewModel @Inject constructor(private val mainActivityRepository: MainActivityRepository) :
     ViewModel() {
 
-    private var successMainRegister: MutableLiveData<Register>? = MutableLiveData()
+    private var successMainResponseLoginRegister: MutableLiveData<ResponseLoginRegister>? =
+        MutableLiveData()
     private var errorMainRegister: MutableLiveData<String>? = MutableLiveData<String>()
 
-    fun getSuccessMain(): LiveData<Register>? {
-        return successMainRegister
+    fun getSuccessMain(): LiveData<ResponseLoginRegister>? {
+        return successMainResponseLoginRegister
     }
 
-    fun setSuccessMain(team: Register?) {
-        this.successMainRegister?.value = team
+    fun setSuccessMain(team: ResponseLoginRegister?) {
+        this.successMainResponseLoginRegister?.value = team
     }
 
     fun getErrorMain(): LiveData<String>? {
@@ -34,19 +37,30 @@ class MainActivityViewModel @Inject constructor(private val mainActivityReposito
         this.errorMainRegister?.value = message
     }
 
-    fun registerUser(league: String) {
-        mainActivityRepository.registerUser(league).subscribeOn(Schedulers.io())
+    fun loginRegisterUser(loginRegister: LoginRegister, isLogin: Boolean) {
+        mainActivityRepository.loginRegisterUser(loginRegister, isLogin)
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<Response<Register>> {
+            .subscribe(object : SingleObserver<Response<ResponseLoginRegister>> {
                 override fun onSubscribe(d: Disposable) {}
 
                 override fun onError(e: Throwable) {
                     errorMainRegister?.value = e.message
                 }
 
-                override fun onSuccess(teams: Response<Register>) {
+                override fun onSuccess(responseLoginRegister: Response<ResponseLoginRegister>) {
                     try {
-                        successMainRegister?.value = teams.body()
+                        if (responseLoginRegister.body() != null) {
+                            successMainResponseLoginRegister?.value = responseLoginRegister.body()
+                            setSuccessMain(null)
+                        } else {
+                            val responseRegisterErrorBody = ResponseLoginRegister()
+                            responseRegisterErrorBody.message = JSONObject(
+                                responseLoginRegister.errorBody()?.string()
+                            ).get("message") as String
+                            successMainResponseLoginRegister?.value = responseRegisterErrorBody
+                            setSuccessMain(null)
+                        }
                     } catch (e: Exception) {
                         errorMainRegister?.value =
                             "El servicio falló, vuelve a intentar"

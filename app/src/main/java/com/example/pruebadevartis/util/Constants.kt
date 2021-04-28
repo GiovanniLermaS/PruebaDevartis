@@ -7,16 +7,9 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import com.example.pruebadevartis.R
 
-const val BASE_URL_RETROFIT = "https://167.99.162.146/"
+const val BASE_URL_RETROFIT = "http://167.99.162.146/"
+const val LOGIN = "users/login"
 const val REGISTER = "users/register"
-const val EVENTS_LAST = "eventslast.php"
-const val LEAGUE = "l"
-const val TEAM = "team"
-const val ID = "id"
-
-const val PACKAGE_TWITTER = "com.twitter.android"
-const val PACKAGE_INSTAGRAM = "com.instagram.android"
-const val PACKAGE_YOUTUBE = "com.google.android.youtube"
 
 var dialog: Dialog? = null
 
